@@ -1,5 +1,8 @@
 import { getReelScoreVisuals } from './reelScoreCalculator.js';
 
+// Cache badge templates by key for cloning
+const badgeTemplates = {};
+
 export function injectBadgeStyles() {
   if (document.getElementById('reel-score-styles')) return;
   const style = document.createElement('style');
@@ -59,6 +62,10 @@ export function injectBadgeStyles() {
 
 export function createBadgeElement(reelScore) {
   const visuals = getReelScoreVisuals(reelScore);
+  const key = `${visuals.color}-${Math.abs(reelScore)}`;
+  if (badgeTemplates[key]) {
+    return badgeTemplates[key].cloneNode(true);
+  }
   const badge = document.createElement('div');
   badge.className = 'reel-score-badge';
   badge.style.backgroundColor = visuals.color;
@@ -88,5 +95,6 @@ export function createBadgeElement(reelScore) {
   icon.textContent = visuals.icon === 'thumbs-up' ? '👍' : visuals.icon === 'thumbs-down' ? '👎' : '✋';
   badge.appendChild(icon);
 
-  return badge;
+  badgeTemplates[key] = badge;
+  return badge.cloneNode(true);
 } 

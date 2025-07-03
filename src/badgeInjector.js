@@ -2,7 +2,7 @@ import { extractScores } from './scoreExtractor.js';
 import { calculateReelScore, getReelScoreVisuals } from './reelScoreCalculator.js';
 import { createBadgeElement, injectBadgeStyles } from './badgeCreator.js';
 
-function debounce(func, wait = 100) {
+function debounce(func, wait = 50) {
   let timeout;
   return (...args) => {
     clearTimeout(timeout);

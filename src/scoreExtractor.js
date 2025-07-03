@@ -4,7 +4,10 @@ export function getPercentage(text) {
   return match ? parseInt(match[1], 10) : null;
 }
 
-// Try multiple selectors for resilience in case the site changes
+// Cache element references for performance
+let cachedCriticEl = null;
+let cachedAudienceEl = null;
+
 const CRITIC_SELECTORS = [
   '.mop-ratings-wrap__percentage', // critics score (desktop)
   '.score-board__link--tomatometer .percentage',
@@ -25,31 +28,44 @@ export function queryFirst(selectors) {
 }
 
 export function extractScores() {
-  const criticEl = queryFirst(CRITIC_SELECTORS);
-  const audienceEl = queryFirst(AUDIENCE_SELECTORS);
+  // Use cached references if still connected to DOM
+  if (cachedCriticEl && !document.contains(cachedCriticEl)) cachedCriticEl = null;
+  if (cachedAudienceEl && !document.contains(cachedAudienceEl)) cachedAudienceEl = null;
 
-  const tomatoMeter = criticEl ? getPercentage(criticEl.textContent) : null;
-  const popcornMeter = audienceEl ? getPercentage(audienceEl.textContent) : null;
+  if (!cachedCriticEl) cachedCriticEl = queryFirst(CRITIC_SELECTORS);
+  if (!cachedAudienceEl) cachedAudienceEl = queryFirst(AUDIENCE_SELECTORS);
+
+  const tomatoMeter = cachedCriticEl ? getPercentage(cachedCriticEl.textContent) : null;
+  const popcornMeter = cachedAudienceEl ? getPercentage(cachedAudienceEl.textContent) : null;
 
   return { tomatoMeter, popcornMeter };
 }
 
-export function observeScoreElements(callback) {
-  // Immediate attempt
-  const initial = extractScores();
-  if (initial.tomatoMeter !== null && initial.popcornMeter !== null) {
-    callback(initial);
-    return null;
-  }
+function debounce(fn, wait = 50) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(null, args), wait);
+  };
+}
 
-  const observer = new MutationObserver(() => {
+export function observeScoreElements(callback) {
+  const tryEmit = () => {
     const scores = extractScores();
     if (scores.tomatoMeter !== null && scores.popcornMeter !== null) {
-      observer.disconnect();
       callback(scores);
+      return true;
     }
-  });
+    return false;
+  };
 
-  observer.observe(document.body, { childList: true, subtree: true });
+  if (tryEmit()) return null;
+
+  const container = document.querySelector('.score-board') || document.body;
+  const observer = new MutationObserver(debounce(() => {
+    if (tryEmit()) observer.disconnect();
+  }, 50));
+
+  observer.observe(container, { childList: true, subtree: true });
   return observer;
 } 
