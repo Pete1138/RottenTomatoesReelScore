@@ -1,4 +1,4 @@
-﻿console.log('ReelScore content script active');
+﻿import { logger, setupGlobalErrorHandling } from './logger.js';
 
 import { initBadgeInjection } from './badgeInjector.js';
 
@@ -9,29 +9,42 @@ function isRelevantPage() {
 }
 
 async function initialize() {
-  if (!isRelevantPage()) return;
+  try {
+    setupGlobalErrorHandling();
+    logger.info('Extension initializing');
 
-  // Check extension enabled flag (default true)
-  const { enabled = true } = await chrome.storage.sync.get('enabled');
-  if (!enabled) return;
-
-  let observer = initBadgeInjection();
-
-  // Listen for enable/disable changes
-  chrome.storage.onChanged.addListener((changes) => {
-    if (!changes.enabled) return;
-
-    if (changes.enabled.newValue === false) {
-      // Disable: remove badges & disconnect observer
-      document.querySelectorAll('.reel-score-badge').forEach((b) => b.remove());
-      observer && observer.disconnect();
+    if (!isRelevantPage()) {
+      logger.debug('Not a relevant page, exiting');
+      return;
     }
 
-    if (changes.enabled.newValue === true && changes.enabled.oldValue === false) {
-      // Re-enable: start again
-      observer = initBadgeInjection();
+    const { enabled = true } = await chrome.storage.sync.get('enabled');
+    if (!enabled) {
+      logger.debug('Extension disabled in settings, exiting');
+      return;
     }
-  });
+
+    logger.info('Initializing badge injection');
+    let observer = initBadgeInjection();
+
+    chrome.storage.onChanged.addListener((changes) => {
+      if (!changes.enabled) return;
+
+      logger.info('Enabled setting changed', { newValue: changes.enabled.newValue });
+      if (changes.enabled.newValue === false) {
+        document.querySelectorAll('.reel-score-badge').forEach((b) => b.remove());
+        observer && observer.disconnect();
+      }
+
+      if (changes.enabled.newValue === true && changes.enabled.oldValue === false) {
+        observer = initBadgeInjection();
+      }
+    });
+
+    logger.info('Extension initialized successfully');
+  } catch (error) {
+    logger.error('Failed to initialize extension', { error: error.message, stack: error.stack });
+  }
 }
 
 initialize();
