@@ -27,6 +27,32 @@ export function injectBadgeStyles() {
       right: -2px;
       font-size: 12px;
     }
+    .reel-score-tooltip {
+      position: absolute;
+      bottom: 120%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 1000;
+    }
+    .reel-score-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 5px;
+      border-style: solid;
+      border-color: #333 transparent transparent transparent;
+    }
   `;
   document.head.appendChild(style);
 }
@@ -36,8 +62,22 @@ export function createBadgeElement(reelScore) {
   const badge = document.createElement('div');
   badge.className = 'reel-score-badge';
   badge.style.backgroundColor = visuals.color;
+  // Accessibility title (fallback)
   badge.setAttribute('aria-label', visuals.description);
-  badge.title = visuals.description;
+
+  // Custom tooltip for styled message
+  const tooltip = document.createElement('div');
+  tooltip.className = 'reel-score-tooltip';
+  tooltip.textContent = visuals.description;
+  badge.appendChild(tooltip);
+
+  // Show/hide tooltip
+  badge.addEventListener('mouseenter', () => {
+    tooltip.style.opacity = '1';
+  });
+  badge.addEventListener('mouseleave', () => {
+    tooltip.style.opacity = '0';
+  });
 
   const text = document.createElement('span');
   text.textContent = Math.abs(reelScore);
