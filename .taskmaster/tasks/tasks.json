@@ -48,7 +48,7 @@
         "dependencies": [
           3
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -61,20 +61,20 @@
         "dependencies": [
           4
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
         "id": 6,
         "title": "Implement Content Script Main Logic",
         "description": "Create the main content script that initializes and coordinates all functionality when the extension runs on RottenTomatoes pages.",
-        "details": "Create the main content script that ties everything together:\n\n```javascript\n// content.js\nimport { initBadgeInjection } from './badgeInjector.js';\n\n// Check if we're on a RottenTomatoes movie or TV show page\nfunction isRelevantPage() {\n  const url = window.location.href;\n  return url.includes('rottentomatoes.com') && \n         (url.includes('/m/') || url.includes('/tv/'));\n}\n\n// Initialize the extension\nasync function initialize() {\n  // Check if we're on a relevant page\n  if (!isRelevantPage()) return;\n  \n  // Check if extension is enabled in storage\n  const { enabled = true } = await chrome.storage.sync.get('enabled');\n  if (!enabled) return;\n  \n  // Initialize badge injection\n  const observer = initBadgeInjection();\n  \n  // Listen for storage changes (e.g., if user disables extension)\n  chrome.storage.onChanged.addListener((changes) => {\n    if (changes.enabled) {\n      if (!changes.enabled.newValue) {\n        // Extension disabled, remove badges and disconnect observer\n        document.querySelectorAll('.reel-score-badge').forEach(badge => badge.remove());\n        observer.disconnect();\n      } else if (changes.enabled.newValue && !changes.enabled.oldValue) {\n        // Extension re-enabled, restart\n        initialize();\n      }\n    }\n  });\n}\n\n// Start the extension\ninitialize();\n```",
+        "details": "Create the main content script that ties everything together:\n\n```javascript\n// content.js\nimport { initBadgeInjection } from './badgeInjector.js';\n\n// Check if we're on a RottenTomatoes movie or TV show page\nfunction isRelevantPage() {\n  const url = window.location.href;\n  return url.includes('rottentomatoes.com') && \n         (url.includes('/m/') || url.includes('/tv/'));\n}\n\n// Initialize the extension\nasync function initialize() {\n  // Check if we're on a relevant page\n  if (!isRelevantPage()) return;\n  \n  // Check if extension is enabled in storage\n  const { enabled = true } = await chrome.storage.sync.get('enabled');\n  if (!enabled) return;\n  \n  // Initialize badge injection\n  const observer = initBadgeInjection();\n  \n  // Listen for storage changes (e.g., if user disables extension)\n  chrome.storage.onChanged.addListener((changes) => {\n    if (changes.enabled) {\n      if (!changes.enabled.newValue) {\n        // Extension disabled, remove badges and disconnect observer\n        document.querySelectorAll('.reel-score-badge').forEach(badge => badge.remove());\n        observer.disconnect();\n      } else if (changes.enabled.newValue && !changes.enabled.oldValue) {\n        // Extension re-enabled, restart\n        initialize();\n      }\n    }\n  });\n}\n\n// Start the extension\ninitialize();\n```\n<info added on 2025-07-03T20:29:57.071Z>\nImplementation Plan:\n1. content.js will become the main initializer:\n   - Define function isRelevantPage() checks url includes rottentomatoes.com and /m/ or /tv/.\n   - Define async initialize() that:\n       a) returns if not relevant page\n       b) get {enabled=true} from chrome.storage.sync; if disabled exit\n       c) call initBadgeInjection(); store observer reference\n       d) listen to chrome.storage.onChanged to respond to enabled flag toggling: if disabled remove badges & disconnect observer; if re-enabled call initBadgeInjection again.\n   - Call initialize() on script load.\n2. Remove debug imports/observeScoreElements.\n3. Create options.js to wire options.html checkbox to storage sync 'enabled'.\n4. Update options.html to include script.\n5. Build, commit, push.\n</info added on 2025-07-03T20:29:57.071Z>",
         "testStrategy": "Test the initialization logic with different URL patterns to verify it only activates on relevant pages. Test the storage listener to ensure it correctly responds to enable/disable changes. Measure overall performance to ensure the extension initializes and renders badges within performance targets.",
         "priority": "high",
         "dependencies": [
           5
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -87,7 +87,7 @@
         "dependencies": [
           6
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -100,7 +100,7 @@
         "dependencies": [
           5
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -127,7 +127,7 @@
         "dependencies": [
           6
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -140,7 +140,7 @@
         "dependencies": [
           6
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": []
       },
       {
@@ -199,7 +199,7 @@
     ],
     "metadata": {
       "created": "2025-07-03T20:04:26.103Z",
-      "updated": "2025-07-03T20:24:07.399Z",
+      "updated": "2025-07-03T20:46:51.229Z",
       "description": "Tasks for master context"
     }
   }
