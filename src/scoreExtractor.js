@@ -35,8 +35,25 @@ export function extractScores() {
   if (!cachedCriticEl) cachedCriticEl = queryFirst(CRITIC_SELECTORS);
   if (!cachedAudienceEl) cachedAudienceEl = queryFirst(AUDIENCE_SELECTORS);
 
-  const tomatoMeter = cachedCriticEl ? getPercentage(cachedCriticEl.textContent) : null;
-  const popcornMeter = cachedAudienceEl ? getPercentage(cachedAudienceEl.textContent) : null;
+  let tomatoMeter = cachedCriticEl ? getPercentage(cachedCriticEl.textContent) : null;
+  let popcornMeter = cachedAudienceEl ? getPercentage(cachedAudienceEl.textContent) : null;
+
+  // Fallback: use <score-board> custom element data attributes
+  if (tomatoMeter === null || popcornMeter === null) {
+    const scoreBoard = document.querySelector('score-board');
+    if (scoreBoard) {
+      const attrTomato = scoreBoard.getAttribute('tomatometerscore');
+      const attrAudience = scoreBoard.getAttribute('audiencescore');
+      if (tomatoMeter === null && attrTomato) {
+        const parsed = parseInt(attrTomato, 10);
+        if (!isNaN(parsed)) tomatoMeter = parsed;
+      }
+      if (popcornMeter === null && attrAudience) {
+        const parsed = parseInt(attrAudience, 10);
+        if (!isNaN(parsed)) popcornMeter = parsed;
+      }
+    }
+  }
 
   return { tomatoMeter, popcornMeter };
 }

@@ -40,7 +40,7 @@ export function injectBadges() {
     }
 
     target.appendChild(badge);
-    logger.debug('Badge injected successfully', { reelScore, tomatoMeter, popcornMeter });
+    logger.info('Badge injected successfully', { reelScore, tomatoMeter, popcornMeter });
   } catch (error) {
     logger.error('Failed to inject badge', { error: error.message, stack: error.stack });
   }
