@@ -9,20 +9,20 @@
         "testStrategy": "Verify project structure is correct. Run linting to ensure code style compliance. Test bundling process to ensure it produces valid output under 150KB.",
         "priority": "high",
         "dependencies": [],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": []
       },
       {
         "id": 2,
         "title": "Implement Score Extraction Logic",
         "description": "Create functionality to extract Tomatometer and Popcorn Meter scores from the RottenTomatoes DOM.",
-        "details": "Create a module that:\n1. Identifies and selects the DOM elements containing the Tomatometer and Popcorn Meter scores\n2. Extracts the percentage values from these elements\n3. Handles cases where one or both scores might not be available\n4. Returns the extracted scores as numbers\n\n```javascript\n// scoreExtractor.js\nexport function extractScores() {\n  // Robust selectors for Tomatometer and Popcorn Meter\n  // These selectors may need adjustment based on actual RT DOM structure\n  const tomatoMeterEl = document.querySelector('.tomatometer .percentage');\n  const popcornMeterEl = document.querySelector('.audience-score .percentage');\n  \n  // Extract and parse scores\n  const tomatoMeter = tomatoMeterEl ? parseInt(tomatoMeterEl.textContent, 10) : null;\n  const popcornMeter = popcornMeterEl ? parseInt(popcornMeterEl.textContent, 10) : null;\n  \n  return { tomatoMeter, popcornMeter };\n}\n```\n\nImplement a MutationObserver to detect when scores become available on the page, as RT is an SPA:\n\n```javascript\nexport function observeScoreElements(callback) {\n  const observer = new MutationObserver((mutations) => {\n    // Check if score elements are now in the DOM\n    const { tomatoMeter, popcornMeter } = extractScores();\n    if (tomatoMeter !== null && popcornMeter !== null) {\n      callback({ tomatoMeter, popcornMeter });\n    }\n  });\n  \n  // Observe the entire document for changes\n  observer.observe(document.body, { childList: true, subtree: true });\n  return observer;\n}\n```",
+        "details": "Create a module that:\n1. Identifies and selects the DOM elements containing the Tomatometer and Popcorn Meter scores\n2. Extracts the percentage values from these elements\n3. Handles cases where one or both scores might not be available\n4. Returns the extracted scores as numbers\n\n```javascript\n// scoreExtractor.js\nexport function extractScores() {\n  // Robust selectors for Tomatometer and Popcorn Meter\n  // These selectors may need adjustment based on actual RT DOM structure\n  const tomatoMeterEl = document.querySelector('.tomatometer .percentage');\n  const popcornMeterEl = document.querySelector('.audience-score .percentage');\n  \n  // Extract and parse scores\n  const tomatoMeter = tomatoMeterEl ? parseInt(tomatoMeterEl.textContent, 10) : null;\n  const popcornMeter = popcornMeterEl ? parseInt(popcornMeterEl.textContent, 10) : null;\n  \n  return { tomatoMeter, popcornMeter };\n}\n```\n\nImplement a MutationObserver to detect when scores become available on the page, as RT is an SPA:\n\n```javascript\nexport function observeScoreElements(callback) {\n  const observer = new MutationObserver((mutations) => {\n    // Check if score elements are now in the DOM\n    const { tomatoMeter, popcornMeter } = extractScores();\n    if (tomatoMeter !== null && popcornMeter !== null) {\n      callback({ tomatoMeter, popcornMeter });\n    }\n  });\n  \n  // Observe the entire document for changes\n  observer.observe(document.body, { childList: true, subtree: true });\n  return observer;\n}\n```\n<info added on 2025-07-03T20:20:24.427Z>\n## Implementation Plan for Score Extraction\n\n1. Create helper utils:\n   - getPercentage(elementText) -> number|null to parse '90%' to 90.\n\n2. src/scoreExtractor.js \n   - export function extractScores() { queries DOM for critic and audience scores using multiple selectors set array for maintainability. returns {tomatoMeter, popcornMeter}. }\n   - export function observeScoreElements(callback) { create MutationObserver; call extractScores initial; on mutations check again; when both scores non-null call callback and disconnect observer}.\n\n3. Update src/content.js:\n   ```javascript\n   import { observeScoreElements } from './scoreExtractor.js';\n   observeScoreElements(({tomatoMeter, popcornMeter}) => {\n       const diff = popcornMeter - tomatoMeter;\n       console.log(`Tomatometer ${tomatoMeter}% | Popcorn ${popcornMeter}% | Diff ${diff}`);\n   });\n   ```\n\n4. Future tasks will add badge injection based on diff.\n5. No external libs needed, keep vanilla JS.\n6. Jest tests will be added in a separate testing task.\n</info added on 2025-07-03T20:20:24.427Z>",
         "testStrategy": "Create Jest tests with jsdom to verify score extraction from sample RottenTomatoes HTML. Test with various score values and edge cases (missing scores, non-numeric values). Measure performance to ensure extraction completes within performance budget.",
         "priority": "high",
         "dependencies": [
           1
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -35,20 +35,20 @@
         "dependencies": [
           2
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
         "id": 4,
         "title": "Design and Create Badge UI Elements",
         "description": "Create the visual badge elements that will display the Reel Score on the page.",
-        "details": "Create a module that generates the badge HTML and CSS:\n\n```javascript\n// badgeCreator.js\nexport function createBadgeElement(reelScore, visuals) {\n  // Create the badge container\n  const badge = document.createElement('div');\n  badge.className = 'reel-score-badge';\n  badge.style.cssText = `\n    display: inline-flex;\n    align-items: center;\n    justify-content: center;\n    width: 36px;\n    height: 36px;\n    border-radius: 50%;\n    background-color: ${visuals.color};\n    color: white;\n    font-weight: bold;\n    margin-left: 8px;\n    position: relative;\n    cursor: help;\n  `;\n  \n  // Add the score text\n  const scoreText = document.createElement('span');\n  scoreText.textContent = Math.abs(reelScore);\n  badge.appendChild(scoreText);\n  \n  // Add the icon\n  const icon = document.createElement('div');\n  icon.className = 'reel-score-icon';\n  icon.style.cssText = `\n    position: absolute;\n    bottom: -2px;\n    right: -2px;\n    font-size: 12px;\n  `;\n  \n  // Set the icon based on the score\n  if (visuals.icon === 'thumbs-up') {\n    icon.innerHTML = '👍';\n  } else if (visuals.icon === 'thumbs-down') {\n    icon.innerHTML = '👎';\n  } else {\n    icon.innerHTML = '✋';\n  }\n  \n  badge.appendChild(icon);\n  \n  // Add accessibility attributes\n  badge.setAttribute('aria-label', visuals.description);\n  \n  // Add tooltip functionality\n  badge.setAttribute('title', visuals.description);\n  \n  return badge;\n}\n\n// Inject the badge styles into the page\nexport function injectBadgeStyles() {\n  const style = document.createElement('style');\n  style.textContent = `\n    .reel-score-badge {\n      font-family: ShockSans, Arial, sans-serif;\n      transition: opacity 0.2s ease;\n    }\n    \n    .reel-score-badge:hover {\n      opacity: 0.9;\n    }\n  `;\n  document.head.appendChild(style);\n}\n```",
+        "details": "Create a module that generates the badge HTML and CSS:\n\n```javascript\n// badgeCreator.js\nexport function createBadgeElement(reelScore, visuals) {\n  // Create the badge container\n  const badge = document.createElement('div');\n  badge.className = 'reel-score-badge';\n  badge.style.cssText = `\n    display: inline-flex;\n    align-items: center;\n    justify-content: center;\n    width: 36px;\n    height: 36px;\n    border-radius: 50%;\n    background-color: ${visuals.color};\n    color: white;\n    font-weight: bold;\n    margin-left: 8px;\n    position: relative;\n    cursor: help;\n  `;\n  \n  // Add the score text\n  const scoreText = document.createElement('span');\n  scoreText.textContent = Math.abs(reelScore);\n  badge.appendChild(scoreText);\n  \n  // Add the icon\n  const icon = document.createElement('div');\n  icon.className = 'reel-score-icon';\n  icon.style.cssText = `\n    position: absolute;\n    bottom: -2px;\n    right: -2px;\n    font-size: 12px;\n  `;\n  \n  // Set the icon based on the score\n  if (visuals.icon === 'thumbs-up') {\n    icon.innerHTML = '👍';\n  } else if (visuals.icon === 'thumbs-down') {\n    icon.innerHTML = '👎';\n  } else {\n    icon.innerHTML = '✋';\n  }\n  \n  badge.appendChild(icon);\n  \n  // Add accessibility attributes\n  badge.setAttribute('aria-label', visuals.description);\n  \n  // Add tooltip functionality\n  badge.setAttribute('title', visuals.description);\n  \n  return badge;\n}\n\n// Inject the badge styles into the page\nexport function injectBadgeStyles() {\n  const style = document.createElement('style');\n  style.textContent = `\n    .reel-score-badge {\n      font-family: ShockSans, Arial, sans-serif;\n      transition: opacity 0.2s ease;\n    }\n    \n    .reel-score-badge:hover {\n      opacity: 0.9;\n    }\n  `;\n  document.head.appendChild(style);\n}\n```\n<info added on 2025-07-03T20:24:22.389Z>\n## Implementation Plan for Badge UI\n\n1. Create `src/badgeCreator.js` with the following functions:\n   - `createBadgeElement(reelScore, visuals)` - Generates the badge HTML element\n   - `injectBadgeStyles()` - Adds required CSS to the page\n\n2. Update `content.js` to:\n   - Import the badge creator functions\n   - Call `injectBadgeStyles()` once using a global flag: `if (!window.__reelBadgeStyles) { injectBadgeStyles(); window.__reelBadgeStyles = true; }`\n   - Determine insertion target by:\n     * First trying to find the audience score percentage element\n     * Falling back to critic score element if audience score not found\n   - Remove any existing badge to avoid duplicates (query for `.reel-score-badge`)\n   - Insert the new badge element after the target element\n\n3. Keep CSS minimal inside `injectBadgeStyles()` function\n   - Future tasks may move styles to a separate CSS file\n\n4. Build, commit, and push changes when complete\n</info added on 2025-07-03T20:24:22.389Z>",
         "testStrategy": "Create visual tests to verify badge appearance matches design specifications. Test with different score values to ensure correct color coding and icon selection. Verify accessibility attributes are correctly set. Test on different screen sizes to ensure responsive behavior.",
         "priority": "high",
         "dependencies": [
           3
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": []
       },
       {
@@ -199,7 +199,7 @@
     ],
     "metadata": {
       "created": "2025-07-03T20:04:26.103Z",
-      "updated": "2025-07-03T20:05:21.134Z",
+      "updated": "2025-07-03T20:24:07.399Z",
       "description": "Tasks for master context"
     }
   }
