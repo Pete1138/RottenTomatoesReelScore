@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "RottenTomatoesReelScore",
+  "version": "1.0.0",
+  "description": "Displays the Reel Score (critic-audience difference) on RottenTomatoes.com",
+  "icons": {
+    "16": "assets/icon16.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "assets/icon48.png"
+  },
+  "permissions": ["storage"],
+  "host_permissions": ["*://*.rottentomatoes.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["*://*.rottentomatoes.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "options_page": "options.html"
+} 

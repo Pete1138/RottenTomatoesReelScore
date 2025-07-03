@@ -1,0 +1,88 @@
+# RottenTomatoesReelScore – Product Requirements Document
+
+## 1. Overview
+RottenTomatoesReelScore is a Chrome Extension that augments movie and TV show pages on RottenTomatoes.com by displaying an additional rating called the **"Reel Score."** The Reel Score visualizes the difference between the Tomatometer (critics' score) and Popcorn Meter (audience score) to highlight potential disconnects between critics and audiences.
+
+## 2. Problem Statement
+Rotten Tomatoes shows two separate scores (Tomatometer & Popcorn Meter) but provides no quick metric summarizing how much critics and audiences disagree. Users who care about this disparity must mentally calculate the difference. A simple, attention-grabbing indicator will improve decision-making for moviegoers who weigh audience opinion over critics (or vice versa).
+
+## 3. Goals & Objectives
+- Enable users to instantly see the magnitude and direction of critic-audience disagreement.
+- Provide an intuitive visual cue (color-coded circle + thumb icon) without cluttering the UI.
+- Maintain performance; the extension should not noticeably slow page loads.
+- Adhere to Chrome Web Store policies and RottenTomatoes' terms of service.
+
+## 4. Success Metrics
+| Metric | Target |
+| ------ | ------ |
+| Reel Score renders within | 200 ms of scores being visible |
+| Bundle size | ≤ 150 KB (minified & gzipped) |
+| Active users (Month 3) | 1,000 installs |
+| Crashes / JS errors | < 1 % of page loads |
+
+## 5. User Stories
+1. **As a moviegoer**, I want to quickly understand if critics & audiences disagree so I can pick movies matching my taste.
+2. **As a casual browser**, I want a simple visual that doesn't overwhelm the existing page design.
+3. **As a power user**, I want an option to disable the Reel Score on demand.
+
+## 6. Core Features
+| # | Feature | Description | Priority |
+| - | -------- | ----------- | -------- |
+| F1 | Score Extraction | Read Tomatometer & Popcorn Meter percentages from the DOM. | P0 |
+| F2 | Reel Score Calculation | Compute difference: `Popcorn Meter – Tomatometer`. | P0 |
+| F3 | UI Badge Injection | Inject a circular badge next to each existing score area. | P0 |
+| F4 | Color / Icon Logic | Positive difference → green badge with 👍; negative → red badge with 👎; 0 → gray badge. | P0 |
+| F5 | Tooltip | On hover, show "Audience score is X % higher/lower than critics." | P1 |
+| F6 | Options Page | Simple toggle to enable/disable extension or badge opacity. | P2 |
+| F7 | i18n | Support at least English; structure for future locales. | P3 |
+
+## 7. Visual Design
+- **Positive Reel Score**: Green (#2ecc71) circle, white text, thumbs-up icon.
+- **Negative Reel Score**: Red (#e74c3c) circle, white text, thumbs-down icon.
+- **Zero**: Gray (#95a5a6) circle, neutral hand icon.
+- Badge placed flush right of the Tomatometer and Popcorn Meter labels (desktop & mobile breakpoints).
+- Use font consistent with existing Rotten Tomatoes typography for number (e.g., ShockSans on site if available, else fallback).
+
+## 8. Technical Requirements
+1. **Stack**: Vanilla JS (ES6+), minimal dependencies. Use Chrome Manifest V3.
+2. **DOM Integration**: Observe dynamic page navigation (Rotten Tomatoes is an SPA). Use MutationObserver.
+3. **Performance**: Debounce DOM queries; avoid polling.
+4. **Bundling**: Use Vite or ESBuild for small bundle.
+5. **Linting & Formatting**: ESLint + Prettier.
+6. **Testing**: Jest + jsdom for logic; Playwright (optional) for E2E.
+7. **CI/CD**: GitHub Actions to lint, test, and package on tag release.
+
+## 9. Non-Functional Requirements
+- **Security**: No remote code injection. Follow CSP rules.
+- **Privacy**: Extension only accesses RottenTomatoes.com pages; no personal data collected.
+- **Accessibility**: Provide `aria-label` describing the Reel Score.
+
+## 10. Out of Scope (v1)
+- Firefox / Safari ports.
+- Historical score charts.
+- Notifications when scores change.
+
+## 11. Risks & Mitigations
+| Risk | Likelihood | Impact | Mitigation |
+| ---- | ---------- | ------ | ---------- |
+| Rotten Tomatoes DOM changes break selectors | Medium | High | Use robust selectors; include automated tests; monitor errors. |
+| Extension rejected by Chrome Store | Low | High | Follow policy guidelines; run extension-checker before submission. |
+| Users misunderstand sign of score | Low | Medium | Include color & thumb icon plus tooltip text for clarity. |
+
+## 12. Timeline (Tentative)
+| Week | Milestone |
+| ---- | --------- |
+| 1 | Project setup, DOM exploration, score extraction prototype |
+| 2 | Badge UI, color/icon logic, MVP ready |
+| 3 | Options page, i18n scaffolding, lint/test setup |
+| 4 | Polishing, performance tuning, publish to Chrome Web Store |
+
+## 13. Acceptance Criteria (MVP)
+- Extension installs and activates without errors.
+- On any movie or show page, badge appears within 200 ms after both scores render.
+- Color & icon reflect sign of difference; value is absolute magnitude.
+- Tooltip text accurately explains the Reel Score difference.
+- Disabling the extension via options immediately hides badges.
+
+---
+End of PRD. 
