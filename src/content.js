@@ -1,9 +1,11 @@
 ﻿console.log('ReelScore content script active');
 
 import { observeScoreElements } from './scoreExtractor.js';
+import { calculateReelScore, getReelScoreVisuals } from './reelScoreCalculator.js';
 
 observeScoreElements(({ tomatoMeter, popcornMeter }) => {
-  const diff = popcornMeter - tomatoMeter;
-  console.log(`Reel Score difference detected: Critics ${tomatoMeter}% | Audience ${popcornMeter}% | Diff ${diff}`);
-  // TODO: Dispatch event for UI badge injection in future tasks
+  const reelScore = calculateReelScore(popcornMeter, tomatoMeter);
+  const visuals = getReelScoreVisuals(reelScore);
+  console.log(`Reel Score: ${reelScore} | ${visuals.description}`);
+  // TODO: In future task, inject badge using visuals.color and visuals.icon
 });
