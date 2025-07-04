@@ -24,8 +24,8 @@ export function injectBadges() {
     const badge = createBadgeElement(reelScore, visuals);
 
     // inject next to audience score preferred, else critic
-    const audienceContainer = document.querySelector('.audience-score') || document.querySelector('.score-board__link--audience-score');
-    const criticContainer = document.querySelector('.tomatometer') || document.querySelector('.score-board__link--tomatometer');
+    const audienceContainer = document.querySelector('.audience-score') || document.querySelector('.score-board__link--audience-score') || document.querySelector('.audience-score-wrap');
+    const criticContainer = document.querySelector('.tomatometer') || document.querySelector('.score-board__link--tomatometer') || document.querySelector('.critics-score-wrap');
 
     const target = audienceContainer || criticContainer;
     if (!target) {
