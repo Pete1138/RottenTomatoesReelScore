@@ -1,6 +1,6 @@
 import { extractScores, extractFromScorePairs } from './scoreExtractor.js';
 import { calculateReelScore, getReelScoreVisuals } from './reelScoreCalculator.js';
-import { createBadgeElement, injectBadgeStyles } from './badgeCreator.js';
+import { createBadgeElement, injectBadgeStyles, createReelScoreBlock } from './badgeCreator.js';
 import { logger } from './logger.js';
 
 function debounce(func, wait = 50) {
@@ -39,7 +39,17 @@ export function injectBadges() {
       return;
     }
 
-    if (target.tagName === 'RT-TEXT') {
+    const card = target.closest('media-scorecard');
+    if (card) {
+      const block = createReelScoreBlock(reelScore);
+      block.setAttribute('slot', 'audienceScoreIcon');
+      // place before audienceScoreIcon button
+      const audienceIconBtn = card.querySelector('rt-button[slot="audienceScoreIcon"]');
+      if (audienceIconBtn && !card.querySelector('.reel-score-block')) {
+        audienceIconBtn.parentNode.insertBefore(block, audienceIconBtn);
+        logger.info('Inserted block into media-scorecard');
+      }
+    } else if (target.tagName === 'RT-TEXT') {
       // preferable: place badge after reviews link for consistent layout
       const card = target.closest('media-scorecard') || target.parentNode;
       const reviewsLink = card.querySelector('rt-link[slot="audienceReviews"], rt-link[slot="criticsReviews"]');
@@ -52,6 +62,13 @@ export function injectBadges() {
     } else {
       target.appendChild(badge);
     }
+
+    // If we are operating within media-scorecard, give badge same slot so it renders
+    const slotName = target.getAttribute && target.getAttribute('slot');
+    if (slotName) {
+      badge.setAttribute('slot', slotName);
+    }
+
     logger.info('Badge injected successfully', { reelScore, tomatoMeter, popcornMeter });
   } catch (error) {
     logger.error('Failed to inject badge', { error: error.message, stack: error.stack });

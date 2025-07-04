@@ -56,6 +56,15 @@ export function injectBadgeStyles() {
       border-style: solid;
       border-color: #333 transparent transparent transparent;
     }
+    .reel-score-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0 0.75rem;
+    }
+    .reel-score-caption {
+      margin-top: 2px;
+    }
   `;
   document.head.appendChild(style);
 }
@@ -97,4 +106,21 @@ export function createBadgeElement(reelScore) {
 
   badgeTemplates[key] = badge;
   return badge.cloneNode(true);
+}
+
+export function createReelScoreBlock(reelScore) {
+  const visuals = getReelScoreVisuals(reelScore);
+  const block = document.createElement('div');
+  block.className = 'reel-score-block';
+  const badge = createBadgeElement(reelScore);
+  badge.style.width = '40px';
+  badge.style.height = '40px';
+  const caption = document.createElement('rt-text');
+  caption.setAttribute('context', 'label');
+  caption.setAttribute('size', '0.75');
+  caption.className = 'reel-score-caption';
+  caption.textContent = 'Reel Score';
+  block.appendChild(badge);
+  block.appendChild(caption);
+  return block;
 } 
