@@ -40,8 +40,9 @@ export function injectBadges() {
     }
 
     if (target.tagName === 'RT-TEXT') {
-      // cannot append inside rt-text, insert after
-      target.parentNode.insertBefore(badge, target.nextSibling);
+      // cannot append inside rt-text; try to append into nearest .score-wrap
+      const wrap = target.closest('.score-wrap') || target.parentNode;
+      wrap.appendChild(badge);
     } else {
       target.appendChild(badge);
     }
