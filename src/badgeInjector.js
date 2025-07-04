@@ -40,9 +40,15 @@ export function injectBadges() {
     }
 
     if (target.tagName === 'RT-TEXT') {
-      // cannot append inside rt-text; try to append into nearest .score-wrap
-      const wrap = target.closest('.score-wrap') || target.parentNode;
-      wrap.appendChild(badge);
+      // preferable: place badge after reviews link for consistent layout
+      const card = target.closest('media-scorecard') || target.parentNode;
+      const reviewsLink = card.querySelector('rt-link[slot="audienceReviews"], rt-link[slot="criticsReviews"]');
+      if (reviewsLink) {
+        reviewsLink.parentNode.insertBefore(badge, reviewsLink.nextSibling);
+      } else {
+        const wrap = target.closest('.score-wrap') || card;
+        wrap.appendChild(badge);
+      }
     } else {
       target.appendChild(badge);
     }
