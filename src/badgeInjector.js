@@ -42,14 +42,20 @@ export function injectBadges() {
     const card = target.closest('media-scorecard');
     if (card) {
       const block = createReelScoreBlock(reelScore);
-      block.setAttribute('slot', 'audienceScoreIcon');
+      block.setAttribute('slot', 'criticsScoreIcon');
       // place before audienceScoreIcon button
-      const audienceIconBtn = card.querySelector('rt-button[slot="audienceScoreIcon"]');
-      const audienceScoreType = card.querySelector('rt-text[slot="audienceScoreType"]');
-      if (audienceScoreType && !card.querySelector('.reel-score-block')) {
-        audienceScoreType.parentNode.insertBefore(block, audienceScoreType.nextSibling);
-      } else if (audienceIconBtn && !card.querySelector('.reel-score-block')) {
-        audienceIconBtn.parentNode.insertBefore(block, audienceIconBtn.nextSibling);
+      const criticIconBtn = card.querySelector('rt-button[slot="criticsScoreIcon"]');
+      const criticScoreText = card.querySelector('rt-text[slot="criticsScore"]');
+      const criticScoreType = card.querySelector('rt-text[slot="criticsScoreType"]');
+      const poster = card.querySelector('[slot="posterImage"]');
+      if (poster && !card.querySelector('.reel-score-block')) {
+        poster.parentNode.insertBefore(block, poster.nextSibling);
+      } else if (criticScoreText && !card.querySelector('.reel-score-block')) {
+        criticScoreText.parentNode.insertBefore(block, criticScoreText.nextSibling);
+      } else if (criticScoreType && !card.querySelector('.reel-score-block')) {
+        criticScoreType.parentNode.insertBefore(block, criticScoreType.nextSibling);
+      } else if (criticIconBtn && !card.querySelector('.reel-score-block')) {
+        criticIconBtn.parentNode.insertBefore(block, criticIconBtn.nextSibling);
       }
       logger.info('Inserted block into media-scorecard');
     } else if (target.tagName === 'RT-TEXT') {
