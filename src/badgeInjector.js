@@ -24,8 +24,8 @@ export function injectBadges() {
     const badge = createBadgeElement(reelScore, visuals);
 
     // inject next to audience score preferred, else critic
-    const audienceContainer = document.querySelector('.audience-score') || document.querySelector('.score-board__link--audience-score') || document.querySelector('.audience-score-wrap');
-    const criticContainer = document.querySelector('.tomatometer') || document.querySelector('.score-board__link--tomatometer') || document.querySelector('.critics-score-wrap');
+    const audienceContainer = document.querySelector('.audience-score') || document.querySelector('.score-board__link--audience-score') || document.querySelector('.audience-score-wrap') || document.querySelector('rt-text[slot="audienceScore"]');
+    const criticContainer = document.querySelector('.tomatometer') || document.querySelector('.score-board__link--tomatometer') || document.querySelector('.critics-score-wrap') || document.querySelector('rt-text[slot="criticsScore"]');
 
     const target = audienceContainer || criticContainer;
     if (!target) {
@@ -34,12 +34,17 @@ export function injectBadges() {
     }
 
     // Avoid duplicate badges
-    if (target.querySelector('.reel-score-badge')) {
+    if (target && target.closest && target.closest('media-scorecard')?.querySelector('.reel-score-badge')) {
       logger.debug('Badge already exists, skipping');
       return;
     }
 
-    target.appendChild(badge);
+    if (target.tagName === 'RT-TEXT') {
+      // cannot append inside rt-text, insert after
+      target.parentNode.insertBefore(badge, target.nextSibling);
+    } else {
+      target.appendChild(badge);
+    }
     logger.info('Badge injected successfully', { reelScore, tomatoMeter, popcornMeter });
   } catch (error) {
     logger.error('Failed to inject badge', { error: error.message, stack: error.stack });
