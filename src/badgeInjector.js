@@ -16,7 +16,7 @@ export function injectBadges() {
     const { tomatoMeter, popcornMeter } = extractScores();
     const reelScore = calculateReelScore(popcornMeter, tomatoMeter);
     if (reelScore === null) {
-      logger.debug('Scores not available, skipping badge injection');
+      logger.debug('Scores not available after extraction attempts, skipping badge injection');
       return;
     }
 

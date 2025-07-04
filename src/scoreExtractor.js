@@ -11,18 +11,36 @@ let cachedAudienceEl = null;
 const CRITIC_SELECTORS = [
   '.mop-ratings-wrap__percentage', // critics score (desktop)
   '.score-board__link--tomatometer .percentage',
-  '.tomatometer .percentage'
+  '.tomatometer .percentage',
+  '.critics-score-wrap'
 ];
 
 const AUDIENCE_SELECTORS = [
   '.audience-score .percentage',
-  '.score-board__link--audience-score .percentage'
+  '.score-board__link--audience-score .percentage',
+  '.audience-score-wrap'
 ];
 
 export function queryFirst(selectors) {
   for (const sel of selectors) {
     const el = document.querySelector(sel);
     if (el) return el;
+  }
+  return null;
+}
+
+function searchPercentageInElement(el) {
+  if (!el) return null;
+  // If the element itself contains %, test it first
+  const direct = getPercentage(el.textContent);
+  if (direct !== null) return direct;
+
+  // Otherwise, scan descendants (depth-first) looking for first text with %
+  const iterator = document.createNodeIterator(el, NodeFilter.SHOW_TEXT, null);
+  let node;
+  while ((node = iterator.nextNode())) {
+    const val = getPercentage(node.textContent);
+    if (val !== null) return val;
   }
   return null;
 }
@@ -53,6 +71,14 @@ export function extractScores() {
         if (!isNaN(parsed)) popcornMeter = parsed;
       }
     }
+  }
+
+  // Final attempt: brute-force search inside wrap elements if still null
+  if (tomatoMeter === null) {
+    tomatoMeter = searchPercentageInElement(queryFirst(['.critics-score-wrap']));
+  }
+  if (popcornMeter === null) {
+    popcornMeter = searchPercentageInElement(queryFirst(['.audience-score-wrap']));
   }
 
   return { tomatoMeter, popcornMeter };
