@@ -47,7 +47,7 @@ export function injectBadges() {
 }
 
 export function injectBadgesForScorePairs() {
-  const pairs = document.querySelectorAll('score-pairs-deprecated');
+  const pairs = document.querySelectorAll('score-pairs-deprecated, score-pairs');
   pairs.forEach((pair) => {
     if (pair.dataset.reelScoreInjected === '1') return;
 

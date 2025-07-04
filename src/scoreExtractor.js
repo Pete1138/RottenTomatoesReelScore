@@ -81,6 +81,16 @@ export function extractScores() {
     popcornMeter = searchPercentageInElement(queryFirst(['.audience-score-wrap']));
   }
 
+  // Fallback 3: use <rt-text> elements with slot attributes on detail pages
+  if (tomatoMeter === null) {
+    const criticSlot = document.querySelector('rt-text[slot="criticsScore"]');
+    tomatoMeter = getPercentage(criticSlot?.textContent);
+  }
+  if (popcornMeter === null) {
+    const audienceSlot = document.querySelector('rt-text[slot="audienceScore"]');
+    popcornMeter = getPercentage(audienceSlot?.textContent);
+  }
+
   return { tomatoMeter, popcornMeter };
 }
 
