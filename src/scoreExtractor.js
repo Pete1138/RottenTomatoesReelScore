@@ -111,4 +111,14 @@ export function observeScoreElements(callback) {
 
   observer.observe(container, { childList: true, subtree: true });
   return observer;
+}
+
+export function extractFromScorePairs(pairEl) {
+  if (!pairEl) return { tomatoMeter: null, popcornMeter: null };
+  const criticText = pairEl.querySelector('[slot="criticsScore"]')?.textContent;
+  const audienceText = pairEl.querySelector('[slot="audienceScore"]')?.textContent;
+  return {
+    tomatoMeter: getPercentage(criticText),
+    popcornMeter: getPercentage(audienceText)
+  };
 } 

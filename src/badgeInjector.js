@@ -1,4 +1,4 @@
-import { extractScores } from './scoreExtractor.js';
+import { extractScores, extractFromScorePairs } from './scoreExtractor.js';
 import { calculateReelScore, getReelScoreVisuals } from './reelScoreCalculator.js';
 import { createBadgeElement, injectBadgeStyles } from './badgeCreator.js';
 import { logger } from './logger.js';
@@ -46,14 +46,38 @@ export function injectBadges() {
   }
 }
 
+export function injectBadgesForScorePairs() {
+  const pairs = document.querySelectorAll('score-pairs-deprecated');
+  pairs.forEach((pair) => {
+    if (pair.dataset.reelScoreInjected === '1') return;
+
+    const { tomatoMeter, popcornMeter } = extractFromScorePairs(pair);
+    const reelScore = calculateReelScore(popcornMeter, tomatoMeter);
+    if (reelScore === null) return;
+
+    const visuals = getReelScoreVisuals(reelScore);
+    const badge = createBadgeElement(reelScore, visuals);
+    badge.style.width = '28px';
+    badge.style.height = '28px';
+    badge.style.fontSize = '0.75rem';
+    badge.style.marginLeft = '4px';
+
+    pair.appendChild(badge);
+    pair.dataset.reelScoreInjected = '1';
+    logger.info('Badge injected into list item', { reelScore });
+  });
+}
+
 export function initBadgeInjection() {
   try {
     logger.info('Initializing badge injection system');
     injectBadgeStyles();
     injectBadges();
+    injectBadgesForScorePairs();
 
     const observer = new MutationObserver(debounce(() => {
       injectBadges();
+      injectBadgesForScorePairs();
     }, 150));
 
     observer.observe(document.body, { childList: true, subtree: true });
