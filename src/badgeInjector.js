@@ -45,10 +45,13 @@ export function injectBadges() {
       block.setAttribute('slot', 'audienceScoreIcon');
       // place before audienceScoreIcon button
       const audienceIconBtn = card.querySelector('rt-button[slot="audienceScoreIcon"]');
-      if (audienceIconBtn && !card.querySelector('.reel-score-block')) {
-        audienceIconBtn.parentNode.insertBefore(block, audienceIconBtn);
-        logger.info('Inserted block into media-scorecard');
+      const audienceScoreType = card.querySelector('rt-text[slot="audienceScoreType"]');
+      if (audienceScoreType && !card.querySelector('.reel-score-block')) {
+        audienceScoreType.parentNode.insertBefore(block, audienceScoreType.nextSibling);
+      } else if (audienceIconBtn && !card.querySelector('.reel-score-block')) {
+        audienceIconBtn.parentNode.insertBefore(block, audienceIconBtn.nextSibling);
       }
+      logger.info('Inserted block into media-scorecard');
     } else if (target.tagName === 'RT-TEXT') {
       // preferable: place badge after reviews link for consistent layout
       const card = target.closest('media-scorecard') || target.parentNode;

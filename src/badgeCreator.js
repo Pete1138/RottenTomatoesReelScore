@@ -64,6 +64,7 @@ export function injectBadgeStyles() {
     }
     .reel-score-caption {
       margin-top: 2px;
+      font-weight: normal;
     }
   `;
   document.head.appendChild(style);
@@ -113,8 +114,9 @@ export function createReelScoreBlock(reelScore) {
   const block = document.createElement('div');
   block.className = 'reel-score-block';
   const badge = createBadgeElement(reelScore);
-  badge.style.width = '40px';
-  badge.style.height = '40px';
+  badge.style.width = '48px';
+  badge.style.height = '48px';
+  badge.style.fontSize = '1rem';
   const caption = document.createElement('rt-text');
   caption.setAttribute('context', 'label');
   caption.setAttribute('size', '0.75');
